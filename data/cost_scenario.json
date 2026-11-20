@@ -1,0 +1,8 @@
+{
+  "name": "primary illustrative scenario",
+  "unit": "common cost units",
+  "contact_cost": 1.0,
+  "lost_value": 10.0,
+  "retention_probability": 0.5,
+  "basis": "Illustrative default specified in plan.md and recorded before model scoring."
+}

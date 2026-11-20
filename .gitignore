@@ -1,0 +1,21 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.scratch/
+.coverage
+.env
+
+# Raw, training and holdout exports stay local.
+*.csv
+!/data/splits.csv
+!/data/folds.csv
+!/results/**/*.csv
+**/train.csv
+**/holdout.csv
+**/Telco-Customer-Churn.csv
+private/
+.churn-evaluations/
+catboost_info/
