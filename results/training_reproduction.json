@@ -1,0 +1,31 @@
+{
+  "configuration": {
+    "model_name": "xgboost",
+    "weighting": "none",
+    "seed": 42
+  },
+  "max_absolute_probability_differences": {
+    "logistic_regression_none": 0.0,
+    "logistic_regression_balanced": 0.0,
+    "random_forest_none": 0.0,
+    "random_forest_balanced": 0.0,
+    "xgboost_none": 0.0,
+    "xgboost_balanced": 0.0,
+    "catboost_none": 0.0,
+    "catboost_balanced": 0.0,
+    "calibrated_oof": 0.0,
+    "final_model_on_training": 0.0
+  },
+  "runtime_versions": {
+    "python": "3.11.9",
+    "catboost": "1.2.8",
+    "joblib": "1.5.3",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2",
+    "scipy": "1.15.3",
+    "streamlit": "1.51.0",
+    "threadpoolctl": "3.6.0",
+    "xgboost": "3.0.5"
+  }
+}
