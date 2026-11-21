@@ -174,6 +174,6 @@ The verified production handoffs create the additional files below.
 | Mohammed Altuwalah, backup Majed Alsehli | Add the measured source record to `data/README.md`, commit `data/train_manifest.json` and `data/splits.csv`, and publish the versioned asset downloaded as `data/train.csv`. Verify it with `python -m src.train_data verify`. |
 | Feras Mohammed Alharbi and Jarallah Al-Jarallah | Generate `data/folds.csv` and `results/oof/` from that release, then publish `results/model_comparison.csv`, `results/model_comparison.png` and `results/selected_model.json`. |
 | Suliman AlTayar and Feras Mohammed Alharbi | Generate `results/calibration/`, review the model and policy, verify `models/churn_model.joblib`, `models/decision.json` and `models/freeze_manifest.json`, then commit and tag `freeze-v1`. |
-| Mohammed Altuwalah, backup Majed Alsehli | Run the custodian command once and publish `results/test_metrics.json`. |
+| Mohammed Altuwalah, Nayar Alsoulmi, backup Majed Alsehli | Run the custodian command once and publish `results/test_metrics.json`. |
 | Jarallah Al-Jarallah, Nayar Alsoulmi and Majed Alsehli | Reproduce the training, generate `results/eda/`, reconcile the report and pitch with the empirical results, and rerun the tutorial. |
 | Suliman AlTayar and Mohammed Altuwalah | Verify the app on the presenting laptop, record the production demo, then confirm the four deliverables and submit. |
