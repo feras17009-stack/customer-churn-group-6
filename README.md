@@ -2,6 +2,8 @@
 
 SIC capstone · Project Crew · Group 6
 
+[Open the Streamlit app](https://sic-group6-customer-churn.streamlit.app/)
+
 The project estimates churn probability on the IBM Telco Customer Churn snapshot. Its scores describe performance on this sample. Future forecasting accuracy and financial impact remain open questions.
 
 ## Setup and fixture checks

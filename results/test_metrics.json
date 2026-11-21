@@ -1,0 +1,129 @@
+{
+  "freeze_id": "freeze-v1",
+  "configuration": {
+    "model_name": "xgboost",
+    "weighting": "none",
+    "seed": 42
+  },
+  "customers": 1409,
+  "positives": 374,
+  "contacted": 612,
+  "confusion_matrix": {
+    "tn": 738,
+    "fp": 297,
+    "fn": 59,
+    "tp": 315
+  },
+  "precision": 0.5147058823529411,
+  "recall": 0.8422459893048129,
+  "f1": 0.6389452332657201,
+  "average_precision": 0.6718934286350441,
+  "roc_auc": 0.8485998088299879,
+  "brier": 0.13720455121018188,
+  "policy": {
+    "policy_type": "threshold",
+    "threshold": 0.17625662777679396
+  },
+  "cost_scenario": {
+    "contact_cost": 1.0,
+    "lost_value": 10.0,
+    "retention_probability": 0.5
+  },
+  "precision_status": "defined",
+  "scenario_costs": {
+    "frozen_policy": {
+      "total": 2777.0,
+      "per_customer": 1.9709013484740951
+    },
+    "contact_all": {
+      "total": 3279.0,
+      "per_customer": 2.327182398864443
+    },
+    "contact_none": {
+      "total": 3740.0,
+      "per_customer": 2.654364797728886
+    }
+  },
+  "paired_savings": {
+    "vs_contact_all": {
+      "total": 502.0,
+      "per_customer": 0.35628105039034774
+    },
+    "vs_contact_none": {
+      "total": 963.0,
+      "per_customer": 0.6834634492547906
+    }
+  },
+  "bootstrap": {
+    "method": "paired customer-level percentile",
+    "resamples": 2000,
+    "seed": 42,
+    "coverage": 0.95,
+    "intervals": {
+      "average_precision": {
+        "lower": 0.6222829580726148,
+        "upper": 0.7168073336665971,
+        "valid_replicates": 2000
+      },
+      "roc_auc": {
+        "lower": 0.8265684275822981,
+        "upper": 0.8680776499225391,
+        "valid_replicates": 2000
+      },
+      "brier": {
+        "lower": 0.1263001796519994,
+        "upper": 0.1485860041329004,
+        "valid_replicates": 2000
+      },
+      "precision": {
+        "lower": 0.4729912990279383,
+        "upper": 0.5544241528387055,
+        "valid_replicates": 2000
+      },
+      "recall": {
+        "lower": 0.8038134320705517,
+        "upper": 0.8785548464952649,
+        "valid_replicates": 2000
+      },
+      "f1": {
+        "lower": 0.602121003762459,
+        "upper": 0.6731546403667604,
+        "valid_replicates": 2000
+      },
+      "frozen_policy_per_customer_cost": {
+        "lower": 1.8126153300212917,
+        "upper": 2.118541518807665,
+        "valid_replicates": 2000
+      },
+      "contact_all_per_customer_cost": {
+        "lower": 2.2100780695528743,
+        "upper": 2.4337295954577707,
+        "valid_replicates": 2000
+      },
+      "contact_none_per_customer_cost": {
+        "lower": 2.4201561391057487,
+        "upper": 2.8674591909155422,
+        "valid_replicates": 2000
+      },
+      "per_customer_saving_vs_contact_all": {
+        "lower": 0.30234208658623135,
+        "upper": 0.4088005677785664,
+        "valid_replicates": 2000
+      },
+      "per_customer_saving_vs_contact_none": {
+        "lower": 0.5876330731014905,
+        "upper": 0.7778566359119943,
+        "valid_replicates": 2000
+      }
+    }
+  },
+  "exploratory_targets": {
+    "minimum_precision": 0.6,
+    "minimum_recall": 0.8,
+    "reaches_precision": false,
+    "reaches_recall": true,
+    "reaches_both": false,
+    "uncertainty": "See the paired bootstrap precision and recall intervals."
+  },
+  "interpretation": "Independent performance on the frozen IBM Telco snapshot holdout. Costs use the stated scenario assumptions."
+}
