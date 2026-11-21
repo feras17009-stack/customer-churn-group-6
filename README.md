@@ -20,7 +20,9 @@ On macOS or Linux, use `python3.11 -m venv .venv` and `.venv/bin/python` for the
 
 ## Developer workflow
 
-Mohammed Altuwalah supplies the reviewed `data/train_manifest.json` and `data/splits.csv` with the versioned training asset. Use the manifest from the reviewed project revision and the access method for the project's authorized storage. For a direct or session-authorized HTTPS download in PowerShell:
+The IBM deployment uses a local-only release (`local_only: true`). Recreate its exact bytes in a separate staging directory using the pinned source and the [custodian intake](data/README.md#custodian-intake). Copy the resulting `train.csv` to `data/train.csv` and run `python -m src.train_data verify`. Keep per-customer development scores in the local workspace. Recreate them using the training comparison and calibration commands before running the independent reproduction checks.
+
+For a hosted release that declares a `download_url`, use the reviewed manifest and the access method for the project's authorized storage. These PowerShell commands cover a direct or session-authorized HTTPS download.
 
 ```powershell
 $manifest = Get-Content -LiteralPath data/train_manifest.json -Raw | ConvertFrom-Json
@@ -66,6 +68,8 @@ streamlit run src/app.py
 ```
 
 Refit after the training-only comparison and calibration are reviewed. Commit `models/churn_model.joblib`, `models/input_schema.json`, `models/decision.json`, and `models/freeze_manifest.json` with the reviewed code, release metadata, folds and development results. Tag that commit `freeze-v1` before evaluation. The verifier hashes the same bytes it loads and checks the recorded runtime. Use the team's trusted manifest and artifacts. The app uses the model's schema and applies the policy to the unrounded score.
+
+For Streamlit Community Cloud, deploy `src/app.py` from `main` and select Python 3.11 in Advanced settings. The server loads the verified model from `models/` and requires the recorded library versions. The app accepts Python patch releases within the version it was trained on. The freeze verifier, evaluator and reproduction commands continue to require the exact recorded Python version.
 
 ## Custodian workflow
 

@@ -57,7 +57,7 @@ def main() -> None:
     st.write("Enter a customer's account and services to estimate churn and apply the frozen outreach policy.")
     manifest = Path(os.getenv("CHURN_FREEZE_MANIFEST", str(MANIFEST_PATH)))
     try:
-        frozen = load_frozen_model(manifest)
+        frozen = load_frozen_model(manifest, allow_python_patch_difference=True)
     except FileNotFoundError:
         st.error("The frozen model bundle is unavailable. Place the reviewed model, schema, decision file and manifest in the models directory.")
         return

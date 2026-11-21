@@ -108,13 +108,27 @@ def verify_freeze(manifest_path: Path = MANIFEST_PATH) -> tuple[dict, dict[str, 
     return manifest, payloads
 
 
-def load_frozen_model(manifest_path: Path = MANIFEST_PATH) -> FrozenModel:
+def load_frozen_model(
+    manifest_path: Path = MANIFEST_PATH, *, allow_python_patch_difference: bool = False,
+) -> FrozenModel:
     """Load only a trusted team bundle, after verifying the exact bytes to be deserialized."""
     manifest, payloads = verify_freeze(manifest_path)
     decision = parse_json_object(payloads[DECISION_NAME], DECISION_NAME)
     if decision.get("freeze_id") != manifest["freeze_id"] or decision.get("class_mapping") != CLASS_MAPPING or decision.get("positive_class") != 1:
         raise DataValidationError("Frozen decision must match its freeze ID and binary label mapping.")
-    if decision.get("runtime_versions") != runtime_versions():
+    expected_versions = decision.get("runtime_versions")
+    installed_versions = runtime_versions()
+    if allow_python_patch_difference and isinstance(expected_versions, dict):
+        expected_python = expected_versions.get("python")
+        installed_python = installed_versions["python"]
+        if (
+            isinstance(expected_python, str)
+            and re.fullmatch(r"\d+\.\d+\.\d+", expected_python)
+            and re.fullmatch(r"\d+\.\d+\.\d+", installed_python)
+            and expected_python.rsplit(".", 1)[0] == installed_python.rsplit(".", 1)[0]
+        ):
+            installed_versions["python"] = expected_python
+    if expected_versions != installed_versions:
         raise DataValidationError("Frozen model requires the Python and library versions in decision.json.")
     if decision.get("configuration") not in [config.as_dict() for config in CONFIGURATIONS] or decision.get("calibration_recipe") != CALIBRATION_RECIPE:
         raise DataValidationError("Frozen model configuration or calibration recipe is invalid.")

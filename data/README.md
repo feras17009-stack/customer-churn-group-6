@@ -2,7 +2,7 @@
 
 ## Source checks
 
-The expected pin in `plan.md` refers to the original 21-column Telco sample supplied by IBM. The SHA-256 is `16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91`. The source should contain 7,043 rows and 7,043 distinct nonempty IDs, 1,869 `Yes` labels, and 11 whitespace-only `TotalCharges` values on exactly the 11 tenure-zero rows. Record the custodian's measured values and approved attribution and redistribution terms in this file. [IBM source repository](https://github.com/IBM/telco-customer-churn-on-icp4d)
+IBM supplies the original 21-column Telco sample. The pinned file comes from commit `1fd6fd70906479be1712e64cfc0ea89f58466629` and has SHA-256 `16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91`. The source pin requires 7,043 distinct customer IDs, 1,869 `Yes` labels, and 11 whitespace-only `TotalCharges` values on tenure-zero rows. IBM publishes the source repository with an Apache 2.0 license. The project keeps the original and holdout in local custodian storage. [Pinned IBM CSV](https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/1fd6fd70906479be1712e64cfc0ea89f58466629/data/Telco-Customer-Churn.csv) · [IBM repository license](https://github.com/IBM/telco-customer-churn-on-icp4d/blob/master/LICENSE)
 
 ## Custodian intake
 
@@ -38,4 +38,6 @@ Commit `data/train_manifest.json` and `data/splits.csv` from the release directo
 
 ## Release status
 
-Production intake and source measurements are pending with Mohammed Altuwalah, with Majed Alsehli as backup. Developers can verify the foundation with the [fixture checks](../README.md#setup-and-fixture-checks) until those release files arrive.
+The intake verified 7,043 unique records, 1,869 positive labels and 11 blank total charges, all at zero tenure. It produced 5,634 training rows and 1,409 holdout rows. The training snapshot `ibm-telco-v1` uses a local-only manifest. Its SHA-256 is `03ab0632c9b240ebcbe2eae492ea81a934c5b4ab1c1d078b0f32044893e13865`.
+
+To regenerate the local-only release, run the split command above with separate empty staging and holdout directories. For an initial split, record the manifest with `python -m src.train_data write-manifest --release-dir "$env:RELEASE_DIR" --asset-version ibm-telco-v1 --local-only`. On a checkout that already contains the reviewed manifest and splits, copy the regenerated `train.csv` alone into `data/` and verify it with `python -m src.train_data verify`.

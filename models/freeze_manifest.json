@@ -1,0 +1,8 @@
+{
+  "freeze_id": "freeze-v1",
+  "files": {
+    "churn_model.joblib": "c010d4c04a4cfc41de56241e473647632100f2ab27e2850bb0f8bba22367a776",
+    "decision.json": "103a4afdfac67b229f9fa1486df53060ded56df823ff15d15b6500b9ee25b051",
+    "input_schema.json": "c4f0d3a94124e79d454aadbb30de851af34cf479d5d535269c2f4caa2ba1dfc5"
+  }
+}

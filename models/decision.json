@@ -1,0 +1,85 @@
+{
+  "freeze_id": "freeze-v1",
+  "class_mapping": {
+    "0": "No",
+    "1": "Yes"
+  },
+  "positive_class": 1,
+  "configuration": {
+    "model_name": "xgboost",
+    "weighting": "none",
+    "seed": 42
+  },
+  "resolved_estimator_settings": {
+    "objective": "binary:logistic",
+    "base_score": null,
+    "booster": null,
+    "callbacks": null,
+    "colsample_bylevel": null,
+    "colsample_bynode": null,
+    "colsample_bytree": null,
+    "device": "cpu",
+    "early_stopping_rounds": null,
+    "enable_categorical": false,
+    "eval_metric": null,
+    "feature_types": null,
+    "feature_weights": null,
+    "gamma": null,
+    "grow_policy": null,
+    "importance_type": null,
+    "interaction_constraints": null,
+    "learning_rate": 0.05,
+    "max_bin": null,
+    "max_cat_threshold": null,
+    "max_cat_to_onehot": null,
+    "max_delta_step": null,
+    "max_depth": 3,
+    "max_leaves": null,
+    "min_child_weight": null,
+    "missing": "NaN",
+    "monotone_constraints": null,
+    "multi_strategy": null,
+    "n_estimators": 200,
+    "n_jobs": 1,
+    "num_parallel_tree": null,
+    "random_state": 42,
+    "reg_alpha": null,
+    "reg_lambda": null,
+    "sampling_method": null,
+    "scale_pos_weight": 1,
+    "subsample": null,
+    "tree_method": null,
+    "validate_parameters": null,
+    "verbosity": null
+  },
+  "calibration_recipe": {
+    "method": "sigmoid",
+    "ensemble": false,
+    "inner_folds": 5,
+    "shuffle": true,
+    "seed": 42
+  },
+  "policy": {
+    "policy_type": "threshold",
+    "threshold": 0.17625662777679396
+  },
+  "cost_scenario": {
+    "contact_cost": 1.0,
+    "lost_value": 10.0,
+    "retention_probability": 0.5
+  },
+  "runtime_versions": {
+    "python": "3.11.9",
+    "catboost": "1.2.8",
+    "joblib": "1.5.3",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2",
+    "scipy": "1.15.3",
+    "streamlit": "1.51.0",
+    "threadpoolctl": "3.6.0",
+    "xgboost": "3.0.5"
+  },
+  "train_frame_sha256": "5f4417d0e170508fa511abaf6828683d3abe18251d4f796c723570eb63a80fab",
+  "split_manifest_sha256": "a0b314ee88afc2ae082d9b605ca49dc6b4dd9c113ecdf42099b152b6194d2f28"
+}

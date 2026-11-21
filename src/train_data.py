@@ -22,15 +22,11 @@ def _validate_manifest(manifest: object, pin: DatasetPin) -> None:
     if not isinstance(version, str) or not version.strip() or any(char.isspace() for char in version):
         raise DataValidationError("Training manifest requires a nonempty asset_version without spaces.")
     url = manifest.get("download_url")
-    try:
-        if not isinstance(url, str) or any(char.isspace() for char in url):
-            raise ValueError
-        parsed = urlsplit(url)
-        if parsed.scheme != "https" or not parsed.hostname or parsed.username is not None or parsed.fragment:
-            raise ValueError
-        _ = parsed.port
-    except ValueError as error:
-        raise DataValidationError("Training manifest requires a stable HTTPS download_url without embedded credentials.") from error
+    if manifest.get("local_only") is True:
+        if url is not None:
+            raise DataValidationError("A local-only training manifest cannot declare a download URL.")
+    else:
+        _validate_download_url(url)
 
     if type(manifest.get("byte_count")) is not int or manifest["byte_count"] < 1:
         raise DataValidationError("Training manifest byte_count must be a positive integer.")
@@ -42,6 +38,17 @@ def _validate_manifest(manifest: object, pin: DatasetPin) -> None:
     if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
         raise DataValidationError("Training manifest contains an invalid train SHA-256.")
 
+
+def _validate_download_url(url: object) -> None:
+    try:
+        if not isinstance(url, str) or any(char.isspace() for char in url):
+            raise ValueError
+        parsed = urlsplit(url)
+        if parsed.scheme != "https" or not parsed.hostname or parsed.username is not None or parsed.fragment:
+            raise ValueError
+        _ = parsed.port
+    except ValueError as error:
+        raise DataValidationError("Training manifest requires a stable HTTPS download_url without embedded credentials.") from error
 
 def partition_ids(payload: bytes, pin: DatasetPin) -> tuple[set[str], set[str]]:
     rows = parse_csv(payload, SPLIT_COLUMNS, "Split manifest")
@@ -81,9 +88,10 @@ def _validated_train_rows(payload: bytes, data_dir: Path, pin: DatasetPin) -> li
 
 
 def write_train_manifest(
-    data_dir: Path, *, asset_version: str, download_url: str, pin: DatasetPin = IBM_PIN,
-) -> dict[str, str | int]:
-    """Record the approved training file and its immutable download location."""
+    data_dir: Path, *, asset_version: str, download_url: str | None = None,
+    local_only: bool = False, pin: DatasetPin = IBM_PIN,
+) -> dict[str, str | int | None]:
+    """Record the exact training file and its download location, when hosted."""
     data_dir = Path(data_dir)
     payload = (data_dir / "train.csv").read_bytes()
     rows = _validated_train_rows(payload, data_dir, pin)
@@ -91,6 +99,8 @@ def write_train_manifest(
         "asset_version": asset_version, "download_url": download_url, "byte_count": len(payload),
         "row_count": len(rows), "raw_source_sha256": pin.sha256, "train_sha256": sha256(payload).hexdigest(),
     }
+    if local_only:
+        manifest["local_only"] = True
     _validate_manifest(manifest, pin)
     write_new_files({data_dir / "train_manifest.json": (json.dumps(manifest, indent=2) + "\n").encode("utf-8")})
     return manifest
@@ -123,7 +133,9 @@ def main() -> None:
     write = commands.add_parser("write-manifest", help="Record the published training release")
     write.add_argument("--release-dir", required=True, type=Path)
     write.add_argument("--asset-version", required=True)
-    write.add_argument("--download-url", required=True)
+    location = write.add_mutually_exclusive_group(required=True)
+    location.add_argument("--download-url")
+    location.add_argument("--local-only", action="store_true", help="Record a locally retained training file")
     args = parser.parse_args()
     try:
         if args.command == "verify":
@@ -132,6 +144,7 @@ def main() -> None:
         else:
             manifest = write_train_manifest(
                 args.release_dir, asset_version=args.asset_version, download_url=args.download_url,
+                local_only=args.local_only,
             )
             print(f"Wrote {args.release_dir / 'train_manifest.json'} for {manifest['asset_version']}.")
     except (OSError, DataValidationError) as error:

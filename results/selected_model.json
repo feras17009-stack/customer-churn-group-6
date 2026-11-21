@@ -1,0 +1,76 @@
+{
+  "configuration": {
+    "model_name": "xgboost",
+    "weighting": "none",
+    "seed": 42
+  },
+  "best_configuration": {
+    "model_name": "xgboost",
+    "weighting": "balanced",
+    "seed": 42
+  },
+  "selected_mean_average_precision": 0.6661080059685396,
+  "best_mean_average_precision": 0.6663680250790505,
+  "best_standard_error": 0.008149743269368924,
+  "eligibility_cutoff": 0.6582182818096816,
+  "paired_fold_ap_differences_from_best": {
+    "logistic_regression_none": [
+      -0.028092245378804503,
+      -0.02646123176821935,
+      -0.005211309742483405,
+      0.0017552990486959796,
+      -0.005298323130397797
+    ],
+    "logistic_regression_balanced": [
+      -0.02773057303599502,
+      -0.02667071576570168,
+      -0.008711837595566707,
+      0.0038015734437000237,
+      -0.008014583012710297
+    ],
+    "random_forest_none": [
+      -0.06149210788854598,
+      -0.07515440140593876,
+      -0.07372165443760614,
+      -0.06567265187548132,
+      -0.07070470648503246
+    ],
+    "random_forest_balanced": [
+      -0.044684786741940874,
+      -0.06979057381925713,
+      -0.07908174086141695,
+      -0.06364728064926917,
+      -0.058485579821900835
+    ],
+    "xgboost_none": [
+      2.531616523804292e-05,
+      -0.002543459433455464,
+      0.002322976077583805,
+      -0.0030780338703566557,
+      0.0019731055084359905
+    ],
+    "xgboost_balanced": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "catboost_none": [
+      -0.0019760384617484306,
+      -0.015959480264563508,
+      -0.009904469765720125,
+      -0.00729653803117547,
+      0.00506998370017564
+    ],
+    "catboost_balanced": [
+      -0.005659055885652853,
+      -0.0073032099717450505,
+      -0.0016397342394698367,
+      -0.0011091555142130893,
+      -0.0006895130301030061
+    ]
+  },
+  "rationale": "Among configurations within one standard error of the highest mean fold AP, prefer logistic regression, random forest, XGBoost, then CatBoost. Prefer unweighted within a family.",
+  "train_frame_sha256": "5f4417d0e170508fa511abaf6828683d3abe18251d4f796c723570eb63a80fab"
+}

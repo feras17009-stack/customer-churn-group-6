@@ -1,0 +1,9 @@
+{
+  "asset_version": "ibm-telco-v1",
+  "download_url": null,
+  "byte_count": 767824,
+  "row_count": 5634,
+  "raw_source_sha256": "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+  "train_sha256": "03ab0632c9b240ebcbe2eae492ea81a934c5b4ab1c1d078b0f32044893e13865",
+  "local_only": true
+}

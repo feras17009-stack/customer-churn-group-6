@@ -130,6 +130,17 @@ def test_loader_rejects_same_size_checksum_change(tmp_path, write_source, source
         load_train(release, pin=pin)
 
 
+def test_local_release_uses_the_same_training_checks(tmp_path, write_source, source_rows):
+    _, release, pin = split_fixture(tmp_path, write_source, source_rows)
+    manifest = write_train_manifest(release, asset_version="local-v1", local_only=True, pin=pin)
+    assert manifest["local_only"] is True
+    assert manifest["download_url"] is None
+    assert len(load_train(release, pin=pin)) == 48
+    (release / "train.csv").write_bytes(b"changed")
+    with pytest.raises(DataValidationError, match="byte count"):
+        load_train(release, pin=pin)
+
+
 @pytest.mark.parametrize("tamper", ["holdout", "duplicate", "unknown"])
 def test_release_rejects_ids_even_with_new_digest(tmp_path, write_source, source_rows, tamper):
     private, release, pin = split_fixture(tmp_path, write_source, source_rows)

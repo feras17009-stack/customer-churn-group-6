@@ -1,0 +1,109 @@
+{
+  "configuration": {
+    "model_name": "xgboost",
+    "weighting": "none",
+    "seed": 42
+  },
+  "train_frame_sha256": "5f4417d0e170508fa511abaf6828683d3abe18251d4f796c723570eb63a80fab",
+  "recipe": {
+    "method": "sigmoid",
+    "ensemble": false,
+    "inner_folds": 5,
+    "shuffle": true,
+    "seed": 42
+  },
+  "mean_paired_metrics": {
+    "brier_difference": 0.0013534921704149328,
+    "ap_difference": 0.0,
+    "brier_deteriorated": true,
+    "ap_deteriorated": false
+  },
+  "primary_scenario": {
+    "contact_cost": 1.0,
+    "lost_value": 10.0,
+    "retention_probability": 0.5
+  },
+  "policy_selection": {
+    "method": "empirical",
+    "policy": {
+      "policy_type": "threshold",
+      "threshold": 0.17625662777679396
+    },
+    "break_even_policy": {
+      "policy_type": "threshold",
+      "threshold": 0.2
+    },
+    "paired_savings": [
+      {
+        "fold": 0,
+        "customers": 1127,
+        "candidate": {
+          "policy_type": "threshold",
+          "threshold": 0.1745266638058416
+        },
+        "per_customer_saving": -0.00709849157054126
+      },
+      {
+        "fold": 1,
+        "customers": 1127,
+        "candidate": {
+          "policy_type": "threshold",
+          "threshold": 0.17507627436093462
+        },
+        "per_customer_saving": 0.01685891748003549
+      },
+      {
+        "fold": 2,
+        "customers": 1127,
+        "candidate": {
+          "policy_type": "threshold",
+          "threshold": 0.17625662777679396
+        },
+        "per_customer_saving": 0.022182786157941437
+      },
+      {
+        "fold": 3,
+        "customers": 1127,
+        "candidate": {
+          "policy_type": "threshold",
+          "threshold": 0.1745266638058416
+        },
+        "per_customer_saving": 0.022182786157941437
+      },
+      {
+        "fold": 4,
+        "customers": 1126,
+        "candidate": {
+          "policy_type": "threshold",
+          "threshold": 0.17211338400403778
+        },
+        "per_customer_saving": 0.010657193605683837
+      }
+    ],
+    "mean_per_customer_saving": 0.012956638366212187,
+    "standard_error": 0.005445030171719108
+  },
+  "operating_point": {
+    "customers": 5634,
+    "positives": 1495,
+    "contacted": 2496,
+    "confusion_matrix": {
+      "tn": 2902,
+      "fp": 1237,
+      "fn": 236,
+      "tp": 1259
+    },
+    "precision": 0.5044070512820513,
+    "recall": 0.8421404682274247,
+    "f1": 0.6309195690303182,
+    "total_cost": 11151.0,
+    "per_customer_cost": 1.9792332268370607
+  },
+  "exploratory_pr_target": {
+    "max_precision": 0.5247915752523037,
+    "recall_at_max_precision": 0.8,
+    "reaches_both_targets": false
+  },
+  "precision_status": "defined",
+  "interpretation": "Outer training validation scores are development estimates. The policy check reuses training information across fold blocks."
+}
