@@ -105,3 +105,23 @@ def test_schema_validates_app_fields_and_allows_missing_charge(examples):
         make_customer_frame(schema, {**values, "tenure": -1})
     with pytest.raises(ValueError, match="SeniorCitizen"):
         make_customer_frame(schema, {**values, "SeniorCitizen": True})
+
+
+@pytest.mark.parametrize(("base", "base_value", "addon", "addon_value"), [
+    ("PhoneService", "No", "MultipleLines", "No"),
+    ("PhoneService", "Yes", "MultipleLines", "No phone service"),
+    ("InternetService", "No", "OnlineSecurity", "Yes"),
+    ("InternetService", "DSL", "StreamingMovies", "No internet service"),
+])
+def test_schema_rejects_incompatible_service_fields(examples, base, base_value, addon, addon_value):
+    features, _ = examples
+    values = features.iloc[0].to_dict()
+    values.update(
+        SeniorCitizen=0, tenure=6, MonthlyCharges=25.0, TotalCharges=150.0,
+        PhoneService="Yes", MultipleLines="No", InternetService="DSL",
+    )
+    for name in ("OnlineSecurity", "OnlineBackup", "DeviceProtection", "TechSupport", "StreamingTV", "StreamingMovies"):
+        values[name] = "No"
+    values.update({base: base_value, addon: addon_value})
+    with pytest.raises(ValueError, match=rf"{addon} must be .* when {base}"):
+        make_customer_frame(load_input_schema(), values)

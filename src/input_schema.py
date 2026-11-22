@@ -12,6 +12,13 @@ from src.data_contract import FEATURE_COLUMNS, PROJECT_ROOT, DataValidationError
 
 
 SCHEMA_PATH = PROJECT_ROOT / "models" / "input_schema.json"
+SERVICE_DEPENDENCIES = {
+    "MultipleLines": ("PhoneService", "No phone service"),
+    **dict.fromkeys(
+        ("OnlineSecurity", "OnlineBackup", "DeviceProtection", "TechSupport", "StreamingTV", "StreamingMovies"),
+        ("InternetService", "No internet service"),
+    ),
+}
 
 
 def parse_input_schema(payload: bytes) -> dict:
@@ -48,6 +55,18 @@ def load_input_schema(path: Path = SCHEMA_PATH) -> dict:
     return parse_input_schema(Path(path).read_bytes())
 
 
+def customer_choices(field: dict, values: Mapping[str, object]) -> list:
+    """Return the schema choices compatible with the selected base service."""
+    choices = field["choices"]
+    dependency = SERVICE_DEPENDENCIES.get(field["name"])
+    if dependency is None:
+        return choices
+    parent, unavailable = dependency
+    if values[parent] == "No":
+        return [unavailable]
+    return [choice for choice in choices if choice != unavailable]
+
+
 def make_customer_frame(schema: dict, values: Mapping[str, object]) -> pd.DataFrame:
     if set(values) != set(FEATURE_COLUMNS):
         raise DataValidationError("A customer must contain exactly the 19 input fields.")
@@ -66,4 +85,12 @@ def make_customer_frame(schema: dict, values: Mapping[str, object]) -> pd.DataFr
         if kind != "category" and (not math.isfinite(value) or value < field.get("minimum", -math.inf)):
             raise DataValidationError(f"{name} is outside its allowed range.")
         record[name] = value
+    for field in schema["fields"]:
+        name = field["name"]
+        if name in SERVICE_DEPENDENCIES:
+            parent, _ = SERVICE_DEPENDENCIES[name]
+            choices = customer_choices(field, record)
+            if record[name] not in choices:
+                allowed = " or ".join(choices)
+                raise DataValidationError(f"{name} must be {allowed} when {parent} is {record[parent]}.")
     return pd.DataFrame([record], columns=FEATURE_COLUMNS)

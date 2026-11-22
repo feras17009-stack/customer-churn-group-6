@@ -107,7 +107,7 @@ The default output is `.scratch/reproduction/`. Record versions and observed dif
 
 Run these commands from the root with the pinned virtual environment active. Each test uses synthetic data in temporary directories.
 
-Verification passed on Windows x86-64 with Python 3.11.9 and the versions in `requirements.txt`. All 56 pytest checks passed, the independent fixture run had a maximum absolute score difference of 0, and the Streamlit CLI returned a healthy local endpoint. The EDA and tutorial ran in fresh kernels. The tutorial passed both before and after publication of the aggregate fixture results.
+All 63 pytest checks passed on Windows x86-64 with Python 3.11.9 and the versions in `requirements.txt`. The tests cover the dependent phone and internet fields in the Streamlit app and reject incompatible combinations before scoring. The independent fixture run had a maximum absolute score difference of 0. The EDA and tutorial ran in fresh kernels. The tutorial passed both before and after publication of the aggregate fixture results.
 
 | Phase | Delivered | Fixture check |
 |---|---|---|

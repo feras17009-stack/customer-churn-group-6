@@ -13,7 +13,7 @@ if not __package__:
         sys.path.insert(0, root)
 
 from src.freeze_model import MANIFEST_PATH, FrozenModel, load_frozen_model
-from src.input_schema import make_customer_frame
+from src.input_schema import customer_choices, make_customer_frame
 from src.policy import ContactPolicy, contact_decisions
 from src.preprocessing import churn_probabilities
 
@@ -37,12 +37,15 @@ def format_decision(probability: float, policy: ContactPolicy) -> tuple[str, str
     return rule, f"At full precision the probability is {relation} the threshold. The displayed percentages are rounded."
 
 
-def _widget(field):
+def _widget(field, values):
     name, label = field["name"], field["label"]
     if "choices" in field:
+        choices = customer_choices(field, values)
         if name == "SeniorCitizen":
-            return st.selectbox(label, field["choices"], key=name, format_func=lambda value: "Yes" if value else "No")
-        return st.selectbox(label, field["choices"], key=name)
+            return st.selectbox(label, choices, key=name, format_func=lambda value: "Yes" if value else "No")
+        if name in st.session_state and st.session_state[name] not in choices:
+            st.session_state[name] = choices[0]
+        return st.selectbox(label, choices, key=name, disabled=len(choices) == 1)
     if field["type"] == "integer":
         return st.number_input(label, min_value=int(field["minimum"]), step=1, key=name)
     minimum = float(field["minimum"])
@@ -70,16 +73,14 @@ def main() -> None:
         ("Customer and account", ("gender", "SeniorCitizen", "Partner", "Dependents", "tenure", "Contract", "PaymentMethod", "PaperlessBilling", "MonthlyCharges", "TotalCharges")),
         ("Services", ("PhoneService", "MultipleLines", "InternetService", "OnlineSecurity", "OnlineBackup", "DeviceProtection", "TechSupport", "StreamingTV", "StreamingMovies")),
     )
-    with st.form("customer"):
-        values = {}
-        for columns, (heading, names) in zip(st.columns(2), groups, strict=True):
-            with columns:
-                st.subheader(heading)
-                for name in names:
-                    values[name] = _widget(fields[name])
-        submitted = st.form_submit_button("Estimate churn", type="primary")
+    values = {}
+    for column, (heading, names) in zip(st.columns(2), groups, strict=True):
+        with column:
+            st.subheader(heading)
+            for name in names:
+                values[name] = _widget(fields[name], values)
 
-    if submitted:
+    if st.button("Estimate churn", type="primary"):
         try:
             probability, contact = score_customer(frozen, values)
         except ValueError as error:
