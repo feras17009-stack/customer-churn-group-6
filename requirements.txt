@@ -1,4 +1,5 @@
 # Verified with CPython 3.11.9 on Windows x86-64.
+# Streamlit Community Cloud builds its runtime from these pinned dependencies.
 altair==5.5.0
 appnope==0.1.4 ; sys_platform == "darwin"
 asttokens==3.0.2
