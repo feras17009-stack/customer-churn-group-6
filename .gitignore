@@ -19,3 +19,7 @@ __pycache__/
 private/
 .churn-evaluations/
 catboost_info/
+*.safetensors
+results/oof/
+results/calibration/oof.csv
+/Customer-Churn-TabPFN/

@@ -12,7 +12,7 @@ if not __package__:
     if root not in sys.path:
         sys.path.insert(0, root)
 
-from src.freeze_model import MANIFEST_PATH, FrozenModel, load_frozen_model
+from src.freeze_model import APP_MANIFEST_PATH, FrozenModel, load_frozen_model
 from src.input_schema import customer_choices, make_customer_frame
 from src.policy import ContactPolicy, contact_decisions
 from src.preprocessing import churn_probabilities
@@ -58,7 +58,7 @@ def main() -> None:
     st.set_page_config(page_title="Customer churn estimate", layout="wide")
     st.title("Customer churn estimate")
     st.write("Enter a customer's account and services to estimate churn and apply the frozen outreach policy.")
-    manifest = Path(os.getenv("CHURN_FREEZE_MANIFEST", str(MANIFEST_PATH)))
+    manifest = Path(os.getenv("CHURN_FREEZE_MANIFEST", str(APP_MANIFEST_PATH)))
     try:
         frozen = load_frozen_model(manifest, allow_python_patch_difference=True)
     except FileNotFoundError:
@@ -67,6 +67,8 @@ def main() -> None:
     except (OSError, ValueError) as error:
         st.error(f"The frozen model bundle failed verification. {error}")
         return
+    if frozen.decision.get("evaluation_scope") == "training_oof":
+        st.caption("CatBoost and Random Forest blend · Threshold selected on IBM Telco development folds.")
 
     fields = {field["name"]: field for field in frozen.schema["fields"]}
     groups = (

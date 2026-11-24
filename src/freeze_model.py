@@ -22,12 +22,14 @@ from src.data_contract import DATA_DIR, FEATURE_COLUMNS, PROJECT_ROOT, TARGET_CO
 from src.input_schema import SCHEMA_PATH, parse_input_schema
 from src.policy import COST_SCENARIO_PATH, ContactPolicy, CostScenario, load_cost_scenario
 from src.preprocessing import fitted_settings
+from src.recall_blend import BLEND_CONFIGURATION, RecallBlend
 from src.train_data import load_train
 
 
 MODEL_DIR = PROJECT_ROOT / "models"
 MANIFEST_NAME = "freeze_manifest.json"
 MANIFEST_PATH = MODEL_DIR / MANIFEST_NAME
+APP_MANIFEST_PATH = MODEL_DIR / "freeze-v2" / MANIFEST_NAME
 MODEL_NAME = "churn_model.joblib"
 DECISION_NAME = "decision.json"
 SCHEMA_NAME = "input_schema.json"
@@ -37,7 +39,7 @@ BUNDLE_FILES = (MODEL_NAME, DECISION_NAME, SCHEMA_NAME)
 
 @dataclass(frozen=True)
 class FrozenModel:
-    estimator: CalibratedClassifierCV
+    estimator: CalibratedClassifierCV | RecallBlend
     schema: dict
     decision: dict
     policy: ContactPolicy
@@ -65,10 +67,6 @@ def write_model_bundle(
     _validate_freeze_id(freeze_id)
     if config not in CONFIGURATIONS:
         raise DataValidationError("Freeze requires one of the eight fixed model configurations.")
-    schema_path = model_dir / SCHEMA_NAME
-    existing_schema = schema_path.is_file()
-    schema_payload = (schema_path if existing_schema else SCHEMA_PATH).read_bytes()
-    parse_input_schema(schema_payload)
     split_digest = sha256(splits_path.read_bytes()).hexdigest()
 
     features = train.loc[:, list(FEATURE_COLUMNS)]
@@ -81,6 +79,17 @@ def write_model_bundle(
         "runtime_versions": runtime_versions(), "train_frame_sha256": training_frame_sha256(train),
         "split_manifest_sha256": split_digest,
     }
+    return write_estimator_bundle(model_dir, estimator, decision)
+
+
+def write_estimator_bundle(model_dir: Path, estimator, decision: dict) -> Path:
+    """Write and hash the estimator, decision and serving schema together."""
+    freeze_id = decision.get("freeze_id")
+    _validate_freeze_id(freeze_id)
+    schema_path = model_dir / SCHEMA_NAME
+    existing_schema = schema_path.is_file()
+    schema_payload = (schema_path if existing_schema else SCHEMA_PATH).read_bytes()
+    parse_input_schema(schema_payload)
     model_file = BytesIO()
     joblib.dump(estimator, model_file, compress=3)
     payloads = {MODEL_NAME: model_file.getvalue(), DECISION_NAME: json_bytes(decision), SCHEMA_NAME: schema_payload}
@@ -130,14 +139,19 @@ def load_frozen_model(
             installed_versions["python"] = expected_python
     if expected_versions != installed_versions:
         raise DataValidationError("Frozen model requires the Python and library versions in decision.json.")
-    if decision.get("configuration") not in [config.as_dict() for config in CONFIGURATIONS] or decision.get("calibration_recipe") != CALIBRATION_RECIPE:
+    is_blend = decision.get("configuration") == BLEND_CONFIGURATION
+    if is_blend:
+        if decision.get("calibration_recipe") is not None or decision.get("evaluation_scope") != "training_oof":
+            raise DataValidationError("Frozen blend metadata must identify the development-only selection.")
+    elif decision.get("configuration") not in [config.as_dict() for config in CONFIGURATIONS] or decision.get("calibration_recipe") != CALIBRATION_RECIPE:
         raise DataValidationError("Frozen model configuration or calibration recipe is invalid.")
     schema = parse_input_schema(payloads[SCHEMA_NAME])
     policy = ContactPolicy.from_dict(decision.get("policy"))
     scenario = CostScenario.from_dict(decision.get("cost_scenario"))
     estimator = joblib.load(BytesIO(payloads[MODEL_NAME]))
-    if not isinstance(estimator, CalibratedClassifierCV) or not np.array_equal(estimator.classes_, [0, 1]):
-        raise DataValidationError("Frozen model must be a calibrated classifier with classes 0 and 1.")
+    expected_type = RecallBlend if is_blend else CalibratedClassifierCV
+    if not isinstance(estimator, expected_type) or not np.array_equal(estimator.classes_, [0, 1]):
+        raise DataValidationError("Frozen estimator does not match the configuration and classes 0 and 1.")
     return FrozenModel(estimator, schema, decision, policy, scenario)
 
 

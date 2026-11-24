@@ -114,6 +114,8 @@ def evaluate_holdout(
     if holdout.is_relative_to(PROJECT_ROOT):
         raise DataValidationError("The private holdout must stay outside the project directory.")
     frozen = load_frozen_model(manifest)
+    if frozen.decision.get("evaluation_scope") == "training_oof":
+        raise DataValidationError("This release requires a fresh independent evaluation cohort. The original IBM holdout was used for freeze-v1.")
     split_bytes = splits.read_bytes()
     if sha256(split_bytes).hexdigest() != frozen.decision.get("split_manifest_sha256"):
         raise DataValidationError("Split manifest SHA-256 does not match the freeze.")

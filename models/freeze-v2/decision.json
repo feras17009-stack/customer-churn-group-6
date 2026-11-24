@@ -1,0 +1,60 @@
+{
+  "freeze_id": "freeze-v2",
+  "class_mapping": {
+    "0": "No",
+    "1": "Yes"
+  },
+  "positive_class": 1,
+  "configuration": {
+    "model_name": "catboost_random_forest_blend",
+    "method": "log_odds",
+    "members": {
+      "cat_raw_d3_n450_w1": 0.25,
+      "rf_raw_dNone_l10_f0.8_None": 0.75
+    }
+  },
+  "calibration_recipe": null,
+  "policy": {
+    "policy_type": "threshold",
+    "threshold": 0.27438088764666546
+  },
+  "cost_scenario": {
+    "contact_cost": 1.0,
+    "lost_value": 10.0,
+    "retention_probability": 0.5
+  },
+  "runtime_versions": {
+    "python": "3.11.9",
+    "catboost": "1.2.8",
+    "joblib": "1.5.3",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2",
+    "scipy": "1.15.3",
+    "streamlit": "1.51.0",
+    "threadpoolctl": "3.6.0",
+    "xgboost": "3.0.5"
+  },
+  "train_frame_sha256": "5f4417d0e170508fa511abaf6828683d3abe18251d4f796c723570eb63a80fab",
+  "split_manifest_sha256": "a0b314ee88afc2ae082d9b605ca49dc6b4dd9c113ecdf42099b152b6194d2f28",
+  "evaluation_scope": "training_oof",
+  "development_selection": {
+    "report_sha256": "ddc57edecf9c8e0f21901fb38902fb5c630cd1b6b3c9874f53c98ef963b2b9b3",
+    "recall_floor_exclusive": 0.8,
+    "operating_point": {
+      "threshold": 0.27438088764666546,
+      "customers": 5634,
+      "positives": 1495,
+      "contacted": 2235,
+      "confusion_matrix": {
+        "tn": 3102,
+        "fp": 1037,
+        "fn": 297,
+        "tp": 1198
+      },
+      "precision": 0.5360178970917227,
+      "recall": 0.8013377926421404,
+      "f1": 0.6423592493297587
+    }
+  }
+}

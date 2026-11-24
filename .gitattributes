@@ -1,5 +1,6 @@
 /data/folds.csv text eol=lf
 /data/splits.csv text eol=lf
-/models/*.json text eol=lf
-/models/*.joblib binary
+/models/**/*.json text eol=lf
+/models/**/*.joblib binary
 /results/**/*.csv text eol=lf
+/results/joint-target-tuning.json text eol=lf

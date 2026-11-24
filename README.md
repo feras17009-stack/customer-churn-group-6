@@ -6,6 +6,14 @@ SIC capstone · Project Crew · Group 6
 
 The project estimates churn probability on the IBM Telco Customer Churn snapshot. Its scores describe performance on this sample. Future forecasting accuracy and financial impact remain open questions.
 
+## Adopted outreach model
+
+Streamlit uses **freeze-v2**, a log-odds blend of **75% Random Forest** and **25% CatBoost**. Across 406 development comparisons, it achieved the highest precision among points with recall **strictly greater than 80%**. At the frozen threshold of **27.4381%**, the five IBM training folds gave **53.60% precision**, **80.13% recall** and **0.6424 F1**. The threshold applies to the full score. These are development estimates from the folds used for model and threshold selection. Independent validation requires a fresh cohort.
+
+[Full training-fold comparison](results/joint-target-tuning.json) · [Adopted decision](models/freeze-v2/decision.json) · [Original XGBoost holdout evaluation](results/test_metrics.json)
+
+The original holdout figures, study report, pitch and tutorial document **freeze-v1**. TabPFN-3.5 is available for local research using a separately obtained checkpoint. [TabPFN-3.5 license](https://huggingface.co/Prior-Labs/tabpfn_3_5/blob/main/LICENSE)
+
 ## Setup and fixture checks
 
 Install Python **3.11.9** and run these commands from the project root. [Python 3.11.9 downloads](https://www.python.org/downloads/release/python-3119/)
@@ -15,7 +23,7 @@ py -3.11 --version
 py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m pytest -q tests
 ```
 
 On macOS or Linux, use `python3.11 -m venv .venv` and `.venv/bin/python` for the remaining commands. Confirm that the interpreter reports `Python 3.11.9`. The tests generate fictional records in temporary directories.
@@ -63,7 +71,7 @@ The primary assumptions are illustrative: one cost unit per contact, ten lost pe
 ### Model freeze and demo
 
 ```sh
-python -m pytest -q
+python -m pytest -q tests
 python -m src.freeze_model
 python -m src.freeze_model --verify
 streamlit run src/app.py
@@ -77,7 +85,23 @@ For Streamlit Community Cloud, deploy `src/app.py` from `main` and select Python
 
 Mohammed Altuwalah or Majed Alsehli uses the separate intake environment and follows the [production intake and release commands](data/README.md#custodian-intake). The custodian publishes the training asset and its verified metadata after recording source provenance and applicable redistribution terms.
 
-### One-time holdout evaluation
+### Reproduce the adopted strict-recall release
+
+Set up the verified local training release and regenerate the development scores. The experimental TabPFN commands use a separate environment with the optional `requirements-tabpfn.txt` package and an authorized checkpoint at `models/tabpfn/tabpfn-v3.5-20260909.safetensors`. Keep checkpoints and per-customer scores in local storage. The adopted blend refit uses the ordinary project dependencies.
+
+```powershell
+python -m src.tune_classical
+python -m src.tune_operating_point
+python -m src.tune_tabpfn --config raw3
+python -m src.tune_tabpfn --config derived1
+python -m src.tuning_report --tabpfn raw3 derived1 --extra --output output/joint-target-tuning.json
+python -m src.recall_release --report output/joint-target-tuning.json --model-dir .scratch/refit-freeze-v2
+python -m src.freeze_model --verify --model-dir .scratch/refit-freeze-v2
+```
+
+To reproduce the adopted blend and threshold directly from the committed aggregate report, run `python -m src.recall_release --model-dir .scratch/refit-freeze-v2`. The refit recomputes all its out-of-fold predictions and confirms the selected operating point before saving the estimator. The evaluated IBM holdout belongs to the original release.
+
+### One-time holdout evaluation for freeze-v1
 
 Work from the reviewed `freeze-v1` revision in the isolated environment with the same pinned dependencies. Keep `PRIVATE_DIR` pointed at the intake's restricted directory.
 
@@ -96,7 +120,7 @@ Jarallah runs these commands in a fresh Python 3.11.9 environment from the revie
 
 ```sh
 python -m pip check
-python -m pytest -q
+python -m pytest -q tests
 python -m src.reproduce
 streamlit run src/app.py
 ```
@@ -107,7 +131,7 @@ The default output is `.scratch/reproduction/`. Record versions and observed dif
 
 Run these commands from the root with the pinned virtual environment active. Each test uses synthetic data in temporary directories.
 
-All 63 pytest checks passed on Windows x86-64 with Python 3.11.9 and the versions in `requirements.txt`. The tests cover the dependent phone and internet fields in the Streamlit app and reject incompatible combinations before scoring. The independent fixture run had a maximum absolute score difference of 0. The EDA and tutorial ran in fresh kernels. The tutorial passed both before and after publication of the aggregate fixture results.
+All 66 pytest checks passed on Windows x86-64 with Python 3.11.9 and the versions in `requirements.txt`. The tests cover the default serving bundle, the strict recall cutoff, the old holdout guard, and validation of dependent phone and internet fields in Streamlit. The original independent fixture run had a maximum absolute score difference of 0. The EDA and tutorial ran in fresh kernels. The tutorial passed both before and after publication of the aggregate fixture results.
 
 | Phase | Delivered | Fixture check |
 |---|---|---|
@@ -117,7 +141,7 @@ All 63 pytest checks passed on Windows x86-64 with Python 3.11.9 and the version
 | 4. Calibration and policy | Nested sigmoid calibration, reliability, contact decisions and sensitivity | `python -m pytest -q tests/test_calibration.py` |
 | 5. Freeze and demo | Hash-verified calibrated bundle and Streamlit form | `python -m pytest -q tests/test_freeze_and_app.py` |
 | 6. Evaluation and reproduction | One-time aggregate evaluation and independent training checks | `python -m pytest -q tests/test_evaluation.py` |
-| 7. Packaging | Worked tutorial, Word study methods, PowerPoint pitch and Excel WBS | `python -m pytest -q` and the clean-kernel and release checks above |
+| 7. Packaging | Worked tutorial, Word study methods, PowerPoint pitch and Excel WBS | `python -m pytest -q tests` and the clean-kernel and release checks above |
 
 ## Delivery files
 
